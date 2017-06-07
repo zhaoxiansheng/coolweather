@@ -2,6 +2,7 @@ package com.example.zy.coolweather.activity;
 
 import android.app.Fragment;
 import android.app.ProgressDialog;
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.view.LayoutInflater;
@@ -21,6 +22,7 @@ import com.example.zy.coolweather.db.County;
 import com.example.zy.coolweather.db.Province;
 import com.example.zy.coolweather.utils.HttpUtils;
 import com.example.zy.coolweather.utils.Utility;
+import com.orhanobut.logger.Logger;
 
 import org.litepal.crud.DataSupport;
 
@@ -94,15 +96,21 @@ public class ChooseAreaFragment extends Fragment {
                 } else if (currentLevel == LEVEL_CITY) {
                     selectedCity = cityList.get(position);
                     queryCounties();
+                } else if (currentLevel == LEVEL_COUNTRY) {
+                    String weatherId = countyList.get(position).getWeatherId();
+                    Intent intent = new Intent(getActivity(), WeatherActivity.class);
+                    intent.putExtra("weather_id", weatherId);
+                    startActivity(intent);
+                    getActivity().finish();
                 }
             }
         });
         backButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (currentLevel == LEVEL_COUNTRY){
+                if (currentLevel == LEVEL_COUNTRY) {
                     queryCities();
-                } else if (currentLevel == LEVEL_CITY){
+                } else if (currentLevel == LEVEL_CITY) {
                     queryProvinces();
                 }
             }
@@ -180,6 +188,7 @@ public class ChooseAreaFragment extends Fragment {
 
     /**
      * 去服务器查询
+     *
      * @param address
      * @param type
      */
@@ -205,7 +214,7 @@ public class ChooseAreaFragment extends Fragment {
                     result = Utility.handlerProvinceResponse(responseText);
                 } else if ("city".equals(type)) {
                     result = Utility.handlerCityResponse(responseText, selectedProvince.getId());
-                } else if ("country".equals(type)) {
+                } else if ("county".equals(type)) {
                     result = Utility.handlerCountryResponse(responseText, selectedCity.getId());
                 }
                 if (result) {
@@ -217,7 +226,7 @@ public class ChooseAreaFragment extends Fragment {
                                 queryProvinces();
                             } else if ("city".equals(type)) {
                                 queryCities();
-                            } else if ("country".equals(type)) {
+                            } else if ("county".equals(type)) {
                                 queryCounties();
                             }
                         }
